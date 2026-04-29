@@ -46,6 +46,9 @@ engram list
 
 # Show manifest
 engram manifest
+
+# Delete a chunk by hash
+engram delete --hash <hash>
 ```
 
 ### As a library
