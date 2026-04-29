@@ -84,6 +84,8 @@ Engram stores data in `.engram/` directory:
 
 Each chunk file contains one JSON object per line, compressed with gzip.
 
+> **Personal note:** I've been using `~/.engram` as the store path instead of a project-local `.engram/` so that memories persist globally across different project directories. Just pass `--store $HOME/.engram` to the CLI or set `ENGRAM_STORE=$HOME/.engram` in your shell profile.
+
 ## Plugin System
 
 Plugins are configured in `.claude-plugin/marketplace.json`. See the marketplace file for available plugins and configuration options.
