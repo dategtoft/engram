@@ -1,201 +1,100 @@
-<p align="center">
-  <img width="1024" alt="Engram Cloud" src="assets/branding/engram-cloud-logo.png" />
-</p>
+# engram
 
-<p align="center">
-  <strong>Persistent memory for AI coding agents</strong><br>
-  <em>Agent-agnostic. Single binary. Zero dependencies.</em>
-</p>
+> A lightweight, fast, and extensible knowledge memory engine for AI agents and developer tooling.
 
-<p align="center">
-  <a href="docs/INSTALLATION.md">Installation</a> &bull;
-  <a href="docs/engram-cloud/README.md">Engram Cloud</a> &bull;
-  <a href="docs/AGENT-SETUP.md">Agent Setup</a> &bull;
-  <a href="docs/ARCHITECTURE.md">Architecture</a> &bull;
-  <a href="docs/PLUGINS.md">Plugins</a> &bull;
-  <a href="CONTRIBUTING.md">Contributing</a> &bull;
-  <a href="DOCS.md">Full Docs</a>
-</p>
+Fork of [Gentleman-Programming/engram](https://github.com/Gentleman-Programming/engram).
 
----
+## Overview
 
-> **engram** `/ˈen.ɡræm/` — *neuroscience*: the physical trace of a memory in the brain.
+Engram is a local-first memory and context management system designed to help AI assistants and developer tools maintain persistent, searchable knowledge across sessions. It stores information in compressed chunked JSONL files with a manifest index for fast retrieval.
 
-Your AI coding agent forgets everything when the session ends. Engram gives it a brain.
+## Features
 
-A **Go binary** with SQLite + FTS5 full-text search, exposed via CLI, HTTP API, MCP server, and an interactive TUI. Works with **any agent** that supports MCP — Claude Code, OpenCode, Gemini CLI, Codex, VS Code (Copilot), Antigravity, Cursor, Windsurf, or anything else.
+- 🧠 **Persistent memory** — Store and retrieve context across sessions
+- ⚡ **Fast chunk-based storage** — Compressed JSONL chunks for efficient I/O
+- 🔍 **Semantic search** — Query stored knowledge by relevance
+- 🔌 **Plugin marketplace** — Extend functionality via `.claude-plugin/marketplace.json`
+- 📦 **Zero external dependencies** — Pure Go implementation
 
-```
-Agent (Claude Code / OpenCode / Gemini CLI / Codex / VS Code / Antigravity / ...)
-    ↓ MCP stdio
-Engram (single Go binary)
-    ↓
-SQLite + FTS5 (~/.engram/engram.db)
-```
-
-## Quick Start
-
-### Install
+## Installation
 
 ```bash
-brew install gentleman-programming/tap/engram
+go install github.com/your-org/engram@latest
 ```
 
-Windows, Linux, and other install methods → [docs/INSTALLATION.md](docs/INSTALLATION.md)
-
-### Setup Your Agent
-
-| Agent | One-liner |
-|-------|-----------|
-| Claude Code | `claude plugin marketplace add Gentleman-Programming/engram && claude plugin install engram` |
-| OpenCode | `engram setup opencode` |
-| Gemini CLI | `engram setup gemini-cli` |
-| Codex | `engram setup codex` |
-| VS Code | `code --add-mcp '{"name":"engram","command":"engram","args":["mcp"]}'` |
-| Cursor / Windsurf / Any MCP | See [docs/AGENT-SETUP.md](docs/AGENT-SETUP.md) |
-
-Full per-agent config, Memory Protocol, and compaction survival → [docs/AGENT-SETUP.md](docs/AGENT-SETUP.md)
-
-That's it. No Node.js, no Python, no Docker. **One binary, one SQLite file.**
-
-## How It Works
-
-```
-1. Agent completes significant work (bugfix, architecture decision, etc.)
-2. Agent calls mem_save → title, type, What/Why/Where/Learned
-3. Engram persists to SQLite with FTS5 indexing
-4. Next session: agent searches memory, gets relevant context
-```
-
-Full details on session lifecycle, topic keys, and memory hygiene → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-
-## MCP Tools (17)
-
-| Category | Tools |
-|----------|-------|
-| **Save & Update** | `mem_save`, `mem_update`, `mem_delete`, `mem_suggest_topic_key` |
-| **Search & Retrieve** | `mem_search`, `mem_context`, `mem_timeline`, `mem_get_observation` |
-| **Session Lifecycle** | `mem_session_start`, `mem_session_end`, `mem_session_summary` |
-| **Conflict Surfacing** | `mem_judge` |
-| **Utilities** | `mem_save_prompt`, `mem_stats`, `mem_capture_passive`, `mem_merge_projects`, `mem_current_project` |
-
-Full tool reference with parameters → [DOCS.md#mcp-tools-17-tools](DOCS.md#mcp-tools-17-tools)
-
-## Terminal UI
+Or build from source:
 
 ```bash
-engram tui
+git clone https://github.com/your-org/engram.git
+cd engram
+go build ./...
 ```
 
-<p align="center">
-<img src="assets/tui-dashboard.png" alt="TUI Dashboard" width="400" />
-  <img width="400" alt="image" src="https://github.com/user-attachments/assets/0308991a-58bb-4ad8-9aa2-201c059f8b64" />
-  <img src="assets/tui-detail.png" alt="TUI Observation Detail" width="400" />
-  <img src="assets/tui-search.png" alt="TUI Search Results" width="400" />
-</p>
+## Usage
 
-**Navigation**: `j/k` vim keys, `Enter` to drill in, `/` to search, `Esc` back. Catppuccin Mocha theme.
-
-## Git Sync
-
-Share memories across machines. Uses compressed chunks — no merge conflicts, no huge files.
-
-Local SQLite remains the source of truth. Cloud integration is opt-in replication.
+### CLI
 
 ```bash
-engram sync                    # Export new memories as compressed chunk
-git add .engram/ && git commit -m "sync engram memories"
-engram sync --import           # On another machine: import new chunks
-engram sync --status           # Check sync status
+# Store a memory chunk
+engram store --content "Go interfaces are satisfied implicitly"
+
+# Query memory
+engram query --q "how do Go interfaces work"
+
+# List all chunks
+engram list
+
+# Show manifest
+engram manifest
 ```
 
-Full sync documentation → [DOCS.md](DOCS.md)
+### As a library
 
-## Cloud Integration (Opt-In Replication)
+```go
+import "github.com/your-org/engram/pkg/memory"
 
-Cloud is optional. Local SQLite stays authoritative; cloud is replication/shared access only.
+store, err := memory.NewStore(".engram")
+if err != nil {
+    log.Fatal(err)
+}
 
-**Recommended first path (local smoke):**
+// Write a chunk
+err = store.Write(memory.Chunk{
+    Content: "Go channels enable safe communication between goroutines",
+    Tags:    []string{"go", "concurrency"},
+})
 
-```bash
-docker compose -f docker-compose.cloud.yml up -d
-engram cloud config --server http://127.0.0.1:18080
-engram cloud enroll smoke-project
-engram sync --cloud --project smoke-project
+// Query chunks
+results, err := store.Query("goroutine communication")
 ```
 
-Cloud mode is always project-scoped (`--project` is required; `engram sync --cloud --all` is intentionally blocked).
-Known repairable cloud sync/upsert/canonicalization failures keep the original error visible and recommend the explicit `doctor`/`repair` flow below; Engram never auto-applies repair from sync or autosync.
+## Storage Format
 
-**Upgrade flow for existing local databases** (diagnose → repair → bootstrap → status):
+Engram stores data in `.engram/` directory:
 
-```bash
-engram cloud upgrade doctor --project smoke-project        # read-only readiness check
-engram cloud upgrade repair --project smoke-project --dry-run
-engram cloud upgrade repair --project smoke-project --apply
-engram cloud upgrade bootstrap --project smoke-project     # resumable enroll + push + verify
-engram cloud upgrade status --project smoke-project        # stage/class/reason
+```
+.engram/
+  manifest.json        # Index of all chunks with metadata
+  chunks/
+    <hash>.jsonl.gz    # Compressed JSONL chunk files
 ```
 
-See [DOCS.md — Cloud upgrade flow](DOCS.md#cloud-upgrade-flow) for the full state machine.
+Each chunk file contains one JSON object per line, compressed with gzip.
 
-For authenticated mode, upgrade flow, dashboard behavior, reason codes, and full runtime/env details:
+## Plugin System
 
-- [Engram Cloud docs landing](docs/engram-cloud/README.md)
-- [Engram Cloud quickstart](docs/engram-cloud/quickstart.md)
-- [DOCS.md — Cloud CLI reference](DOCS.md#cloud-cli-opt-in)
-- [DOCS.md — Cloud Autosync](DOCS.md#cloud-autosync)
+Plugins are configured in `.claude-plugin/marketplace.json`. See the marketplace file for available plugins and configuration options.
 
-## CLI Reference
+## Contributing
 
-| Command | Description |
-|---------|-------------|
-| `engram setup [agent]` | Install agent integration |
-| `engram serve [port]` | Start HTTP API (default: 7437) |
-| `engram mcp [--tools=PROFILE]` | Start MCP server (stdio transport) |
-| `engram tui` | Launch terminal UI |
-| `engram search <query>` | Search memories |
-| `engram save <title> <msg>` | Save a memory |
-| `engram timeline <obs_id>` | Chronological context |
-| `engram context [project]` | Recent session context |
-| `engram stats` | Memory statistics |
-| `engram export [file]` | Export to JSON |
-| `engram import <file>` | Import from JSON |
-| `engram sync` | Git sync export/import |
-| `engram cloud <subcommand>` | Opt-in cloud config/status/enrollment + cloud runtime (`serve`) |
-| `engram projects list\|consolidate\|prune` | Manage project names |
-| `engram obsidian-export` | Export to Obsidian vault (beta) |
-| `engram version` | Show version |
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feat/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feat/amazing-feature`)
+5. Open a Pull Request
 
-Full CLI with all flags → [docs/ARCHITECTURE.md#cli-reference](docs/ARCHITECTURE.md#cli-reference)
-
-## Documentation
-
-| Doc | Description |
-|-----|-------------|
-| [Installation](docs/INSTALLATION.md) | All install methods + platform support |
-| [Engram Cloud](docs/engram-cloud/README.md) | Cloud landing page, quickstart, branding, and deep links |
-| [Agent Setup](docs/AGENT-SETUP.md) | Per-agent configuration + Memory Protocol |
-| [Architecture](docs/ARCHITECTURE.md) | How it works + MCP tools + project structure |
-| [Plugins](docs/PLUGINS.md) | OpenCode & Claude Code plugin details |
-| [Comparison](docs/COMPARISON.md) | Why Engram vs claude-mem |
-| [Intended Usage](docs/intended-usage.md) | Mental model — how Engram is meant to be used |
-| [Obsidian Brain](docs/beta/obsidian-brain.md) | Export memories as Obsidian knowledge graph (beta) |
-| [Contributing](CONTRIBUTING.md) | Contribution workflow + standards |
-| [Full Docs](DOCS.md) | Complete technical reference |
-
-> **Dashboard contributors**: if you modify `.templ` files in `internal/cloud/dashboard/`, run `make templ` to regenerate before committing. See [DOCS.md — Dashboard templ regeneration](DOCS.md#dashboard-templ-regeneration).
+Please use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.yml) for issues.
 
 ## License
 
-MIT
-
----
-
-**Inspired by [claude-mem](https://github.com/thedotmack/claude-mem)** — but agent-agnostic, simpler, and built different.
-
-## Contributors
-
-<a href="https://github.com/Gentleman-Programming/engram/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Gentleman-Programming/engram&max=100" />
-</a>
+MIT License — see [LICENSE](LICENSE) for details.
