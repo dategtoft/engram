@@ -30,7 +30,7 @@ type Config struct {
 func DefaultConfig() *Config {
 	return &Config{
 		StoragePath:        DefaultConfigDir,
-		MaxChunkSize:       1024 * 1024 * 10, // 10 MB
+		MaxChunkSize:       1024 * 1024 * 5, // 5 MB — reduced from 10 MB to keep chunks manageable
 		CompressionEnabled: true,
 		IndexFile:          "manifest.json",
 	}
