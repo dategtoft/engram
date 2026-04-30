@@ -86,6 +86,12 @@ Each chunk file contains one JSON object per line, compressed with gzip.
 
 > **Personal note:** I've been using `~/.engram` as the store path instead of a project-local `.engram/` so that memories persist globally across different project directories. Just pass `--store $HOME/.engram` to the CLI or set `ENGRAM_STORE=$HOME/.engram` in your shell profile.
 
+> **Tip:** I also added the following shell alias to make querying faster from anywhere:
+> ```bash
+> alias eq='engram query --store $HOME/.engram --q'
+> # Usage: eq "how do Go interfaces work"
+> ```
+
 ## Plugin System
 
 Plugins are configured in `.claude-plugin/marketplace.json`. See the marketplace file for available plugins and configuration options.
