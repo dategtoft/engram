@@ -2,6 +2,7 @@
 // management tool that stores context chunks for AI-assisted development workflows.
 //
 // Personal fork: customized for my own dev workflow and learning purposes.
+// Note: bumping version independently from upstream as I add personal tweaks.
 package main
 
 import (
@@ -11,7 +12,7 @@ import (
 	"github.com/Gentleman-Programming/engram/cmd"
 )
 
-const version = "0.1.0"
+const version = "0.1.0-personal"
 
 func main() {
 	if err := cmd.Execute(version); err != nil {
